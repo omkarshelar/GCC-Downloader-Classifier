@@ -1,3 +1,7 @@
 Train_GCC-training.tsv
 captions.txt
-/imgs
+imgs/
+venv/
+*.h5
+*.png
+*.jpg
