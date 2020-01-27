@@ -3,14 +3,25 @@ import requests
 from PIL import Image
 import multiprocessing
 from multiprocessing.dummy import Pool as ThreadPool
+import imghdr
 
 lock = multiprocessing.Lock()
 
-max = 10000
+max = 1000000
 size = 64 , 64
 object = input("Enter the object to download:")
 count = 1
 input_list = list()
+
+def process_caption(cption):
+	punctuations = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+	no_punct = ""
+	for char in cption:
+		if char not in punctuations:
+			no_punct = no_punct + char
+	if(len(cption.split(' ')) > 20):
+		return False, no_punct
+	return True, no_punct
 
 def downloader(data):
 	#download images from urls
@@ -45,7 +56,7 @@ def downloader(data):
 		return
 
 def handler():
-	with open("Train_GCC-training.tsv") as fd:
+	with open("Train_GCC-training.tsv", encoding="utf8") as fd:
 		rd = csv.reader(fd, delimiter="\t", quotechar='"')
 		global count
 		for row in rd:
@@ -53,6 +64,9 @@ def handler():
 			if count <= max:
 				if object in row[0]:
 					d = dict()
+					status, caption = process_caption(row[0])
+					if not status:
+						continue
 					d['caption'] = row[0]
 					d['link'] = row[1]
 					input_list.append(d)
